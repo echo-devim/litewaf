@@ -32,7 +32,7 @@ class LiteWAF {
 	/* ------ USER CONFIGURATION VARIABLES (edit here your settings) -------- */
 	private $ALLOW_ARRAYS=false; //Allow an array to be passed as parameter. If this property is set to true the array is passed without checks (maybe this will be fixed in the next releases)
 	private $REDIRECT_PAGE=""; //Relative path where to redirect the user if an attack is detected (empty string redirects to the index)
-	private $LOG_FILEPATH="attacklogs.php";
+	private $LOG_FILEPATH="attacklogs.php"; //Relative log file path from document root directory
 	private $LITEWAF_PATH=""; //Directory that contains litewaf.php (leave blank if it is in the root directory). Directory path must end with '/'
 	private $LOG_PASSWORD=""; //Set the password to access the log file
 	private $LOG_REDIRECT=true; //if true, when someone tries to access the log page using incorrect credentials he will be redirected to $REDIRECT_PAGE otherwise "Not Authorized" message is displayed
@@ -50,10 +50,11 @@ class LiteWAF {
 	private $rce_markers = array("bin/", "cmd/", "&&", ">/", "system(","exec("); //Note: bin/ is the *nix directory, the second item is for 'cmd /param1 etc.' (Windows)
 
 	function logAttack($msg) {
+		$logfilepath = $_SERVER['DOCUMENT_ROOT'] . "/" . $this->LOG_FILEPATH;
 		//Check if any attack log file exists
-		if (!file_exists($this->LOG_FILEPATH)) {
+		if (!file_exists($logfilepath)) {
 			//Create a new log file
-			$logs = fopen($this->LOG_FILEPATH, "w");
+			$logs = fopen($logfilepath, "w");
 			if ($this->LOG_PASSWORD == "")
 				$this->LOG_PASSWORD = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-0123456789'),0,8); //Generate random password
 			$auth_header = "<?php include '" . $this->LITEWAF_PATH . "litewaf.php'; if(isset(\$_GET['pwd']) && (\$_GET['pwd'] == \"" . $this->LOG_PASSWORD . "\")) { header('Content-Type:text/plain'); } else ";
@@ -65,7 +66,7 @@ class LiteWAF {
 			fwrite($logs, $auth_header);
 			fclose($logs);
 		}
-		$logs = fopen($this->LOG_FILEPATH, "a+");
+		$logs = fopen($logfilepath, "a+");
 		$ipAddress = $_SERVER['REMOTE_ADDR'];
 		if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
 			$ipAddress = array_pop(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
