@@ -49,7 +49,7 @@ class LiteWAF {
 	
 	private $rce_markers = array("bin/", "cmd/", "&&", ">/", "system(","exec("); //Note: bin/ is the *nix directory, the second item is for 'cmd /param1 etc.' (Windows)
 
-	function logAttack($msg) {
+	function logAttack($msg, $key, $value) {
 		$logfilepath = $_SERVER['DOCUMENT_ROOT'] . "/" . $this->LOG_FILEPATH;
 		//Check if any attack log file exists
 		if (!file_exists($logfilepath)) {
@@ -71,14 +71,14 @@ class LiteWAF {
 		if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
 			$ipAddress = array_pop(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
 		}
-		$content = htmlentities(date('d-m-Y H:i:s') . "\tIP: " . $ipAddress . "\tMethod: " . $_SERVER['REQUEST_METHOD'] . "\tURL: " . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"] . "\tUser-Agent: " . $_SERVER['HTTP_USER_AGENT'] . "\tAttack Type: " . $msg . "\tProduct: " . $this::PRODUCT . " " . $this::VERSION) . "\r\n";
+		$content = htmlentities(date('d-m-Y H:i:s') . "\tIP: " . $ipAddress . "\tMethod: " . $_SERVER['REQUEST_METHOD'] . "\tURL: " . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"] . "\tUser-Agent: " . $_SERVER['HTTP_USER_AGENT'] . "\tParameter: " . $key ."=" . $value . "\tAttack Type: " . $msg . "\tProduct: " . $this::PRODUCT . " " . $this::VERSION) . "\r\n";
 		fwrite($logs, $content);
 		fclose($logs);
 	}
 
-	function warn($msg) {
+	function warn($msg, $key, $value) {
 		//Log the message
-		$this->logAttack($msg);
+		$this->logAttack($msg, $key, $value);
 		//Redirect the user
 		$this->redirect();
 	}
@@ -111,13 +111,13 @@ class LiteWAF {
 		$value = str_replace(" ", "", strtolower($value));
 		//Compare the param to the blacklists
 		if ($this->lookForMarkers($this->sqli_markers, $value))
-			$this->warn("SQL Injection");
+			$this->warn("SQL Injection", $key, $value);
 		elseif ($this->lookForMarkers($this->xss_markers, $value))
-			$this->warn("XSS");
+			$this->warn("XSS", $key, $value);
 		elseif ($this->lookForMarkers($this->pathtraversal_markers, $value))
-			$this->warn("Path Traversal");
+			$this->warn("Path Traversal", $key, $value);
 		elseif ($this->lookForMarkers($this->rce_markers, $value))
-			$this->warn("Remote Command Execution");
+			$this->warn("Remote Command Execution", $key, $value);
 	}
 
 	function redirect() {
@@ -150,4 +150,3 @@ if (realpath(__FILE__) == realpath($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NA
 	$litewaf->redirect();
 }
 ?>
-
