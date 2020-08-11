@@ -11,7 +11,7 @@ Actually the script supports the following attack types:
 
 When an attack attempt is detected the script logs the event into `attacklogs.php` file and then redirects the user to a default page.
 
-The `attacklogs.php` script contains the logs, but it is authenticated. Thus means that you need to provide the right password to access the logs.
+The `attacklogs.php` script contains the logs, but it is authenticated. Thus means that you need to provide the right password to access the logs (url: `attacklogs.php?pwd=your_password`).
 Even `attacklogs.php` is protected by LiteWAF.
 
 At the moment the logs are stored in plain text. Each row contains several information about the event (datetime, ip, user-agent, url requested, attack type, etc.).
