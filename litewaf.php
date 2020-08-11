@@ -14,6 +14,7 @@ class LiteWAF {
 	private $LITEWAF_PATH=""; //Directory that contains litewaf.php (leave blank if it is in the root directory). Directory path must end with '/'
 	private $LOG_PASSWORD=""; //Set the password to access the log file
 	private $LOG_REDIRECT=true; //if true, when someone tries to access the log page using incorrect credentials he will be redirected to $REDIRECT_PAGE otherwise "Not Authorized" message is displayed
+	private $ENABLE_WAF=true; //Enable or disable the WAF protection (intended mainly for debug purposes, keep it enabled)
 	/* ------ END USER CONFIGURATION (Do not touch code below) ------ */
 
 	const PRODUCT='LiteWAF';
@@ -102,15 +103,17 @@ class LiteWAF {
 	}
 
 	function run() {
-		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-			//Check GET parameters
-			foreach ($_GET as $key => $value) {
-				$this->checkParameter($key, $value);
-			}
-		} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-			//Check POST parameters
-			foreach ($_POST as $key => $value) {
-				$this->checkParameter($key, $value);
+		if ($this->ENABLE_WAF) {
+			if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+				//Check GET parameters
+				foreach ($_GET as $key => $value) {
+					$this->checkParameter($key, $value);
+				}
+			} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+				//Check POST parameters
+				foreach ($_POST as $key => $value) {
+					$this->checkParameter($key, $value);
+				}
 			}
 		}
 	}
