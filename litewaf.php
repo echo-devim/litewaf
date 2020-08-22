@@ -47,7 +47,7 @@ class LiteWAF {
 	
 	private $pathtraversal_markers = array("..\\","../","..\\/");
 	
-	private $rce_markers = array("bin/", "cmd/", "&&", ">/", "system(","exec("); //Note: bin/ is the *nix directory, the second item is for 'cmd /param1 etc.' (Windows)
+    private $rce_markers = array("bin/", "cmd/", "&&", ">/", "system(","exec(", "<?", "?>"); //Note: bin/ is the *nix directory, the second item is for 'cmd /param1 etc.' (Windows)
 
 	function logAttack($msg, $key, $value) {
 		$logfilepath = $_SERVER['DOCUMENT_ROOT'] . "/" . $this->LOG_FILEPATH;
