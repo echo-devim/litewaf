@@ -127,16 +127,9 @@ class LiteWAF {
 
 	function run() {
 		if ($this->ENABLE_WAF) {
-			if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-				//Check GET parameters
-				foreach ($_GET as $key => $value) {
-					$this->checkParameter($key, $value);
-				}
-			} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-				//Check POST parameters
-				foreach ($_POST as $key => $value) {
-					$this->checkParameter($key, $value);
-				}
+			//Check GET, POST and COOKIE parameters
+			foreach ($_REQUEST as $key => $value) {
+				$this->checkParameter($key, $value);
 			}
 		}
 	}
