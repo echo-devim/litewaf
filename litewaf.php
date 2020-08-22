@@ -127,9 +127,14 @@ class LiteWAF {
 
 	function run() {
 		if ($this->ENABLE_WAF) {
-			//Check GET, POST and COOKIE parameters
-			foreach ($_REQUEST as $key => $value) {
-				$this->checkParameter($key, $value);
+			//Count parameters in get, post and cookies
+			if (count($_REQUEST) > 20) { //Check if the user passed too many parameters
+				$this->warn("DoS", "count", count($_REQUEST));
+			} else {
+				//Check GET, POST and COOKIE parameters
+				foreach ($_REQUEST as $key => $value) {
+					$this->checkParameter($key, $value);
+				}
 			}
 		}
 	}
